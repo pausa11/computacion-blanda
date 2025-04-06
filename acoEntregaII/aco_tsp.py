@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 import tsplib95
 import os
 import random
+import math
 
 # --- Configuración ---
 TSP_FOLDER = './tsplib-master/'
-RO = 0.5
+RO = 0.3
 MAX_ITER = 1000
-N_ANTS = 10
-ALPHA = 1
-BETA = 1
+N_ANTS = 40
+ALPHA = 1.5
+BETA = 5
 
 # --- Funciones auxiliares ---
 def is_graphable(problem):
@@ -28,32 +29,60 @@ def get_random_problems(file_list, count):
         available.remove(filename)
     return selected
 
-def distances(cities):
+def deg_to_rad(coord):
+    deg = int(coord)
+    min = coord - deg
+    return math.pi * (deg + 5.0 * min / 3.0) / 180.0
+
+def geo_distance(coord1, coord2):
+    RRR = 6378.388  # radio terrestre en km (TSPLIB)
+    lat1, lon1 = coord1
+    lat2, lon2 = coord2
+
+    lat1 = deg_to_rad(lat1)
+    lon1 = deg_to_rad(lon1)
+    lat2 = deg_to_rad(lat2)
+    lon2 = deg_to_rad(lon2)
+
+    q1 = math.cos(lon1 - lon2)
+    q2 = math.cos(lat1 - lat2)
+    q3 = math.cos(lat1 + lat2)
+
+    return int(RRR * math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1)
+
+def compute_distance_matrix(cities, edge_type="EUC_2D"):
     n = len(cities)
     d = np.zeros([n, n])
     for i in range(n):
         for j in range(n):
-            d[i, j] = np.linalg.norm(cities[i] - cities[j])
-    np.fill_diagonal(d, np.inf)
+            if i == j:
+                d[i, j] = np.inf
+            else:
+                if edge_type == "GEO":
+                    d[i, j] = geo_distance(cities[i], cities[j])
+                else:
+                    d[i, j] = np.linalg.norm(np.array(cities[i]) - np.array(cities[j]))
     return d
 
 def plot_path(cities, path, title=""):
+    cities = np.array(cities)
     for i in range(len(path) - 1):
         inicio = cities[path[i]]
         fin = cities[path[i + 1]]
         plt.plot([inicio[0], fin[0]], [inicio[1], fin[1]], 'b')
-    plt.plot([cities[path[-1]][0], cities[path[0]][0]], [cities[path[-1]][1], cities[path[0]][1]], 'b')
+    plt.plot([cities[path[-1]][0], cities[path[0]][0]],
+             [cities[path[-1]][1], cities[path[0]][1]], 'b')
     plt.scatter(cities[:, 0], cities[:, 1], c='r')
     plt.title(title)
     plt.grid()
     plt.show()
 
-def solve_aco(cities):
+def solve_aco(cities, edge_type):
     n = len(cities)
-    d = distances(cities)
+    d = compute_distance_matrix(cities, edge_type)
     nij = 1 / d
     To = np.ones([n, n])
-    delta = RO
+    delta = 1.0 
     best_path = []
     best_path_length = np.inf
 
@@ -71,7 +100,14 @@ def solve_aco(cities):
             while not np.all(S):
                 unvisited = np.where(~S)[0]
                 pij = (To[current_city, unvisited] ** ALPHA) * (nij[current_city, unvisited] ** BETA)
-                pij /= np.sum(pij)
+                suma_pij = np.sum(pij)
+
+                # ⚠️ Evitar división por 0 o NaN
+                if suma_pij == 0 or np.isnan(suma_pij):
+                    pij = np.ones(len(unvisited)) / len(unvisited)
+                else:
+                    pij /= suma_pij
+
                 next_city = np.random.choice(unvisited, p=pij)
                 path.append(next_city)
                 path_length += d[current_city, next_city]
@@ -86,7 +122,8 @@ def solve_aco(cities):
                 best_path = path.copy()
                 best_path_length = path_length
 
-        To *= (1 - RO)
+        # Evaporación + protección contra 0s
+        To = np.maximum(To * (1 - RO), 1e-10)
         for path, length in zip(paths, paths_length):
             for i in range(n - 1):
                 To[path[i], path[i + 1]] += delta / length
@@ -118,8 +155,8 @@ for filename in os.listdir(TSP_FOLDER):
 
 # --- Selección aleatoria de problemas ---
 problems = []
-problems += get_random_problems(small_problems, 1)
-problems += get_random_problems(medium_problems, 0)
+problems += get_random_problems(small_problems, 0)
+problems += get_random_problems(medium_problems, 1)
 problems += get_random_problems(large_problems, 0)
 
 # --- Ejecutar ACO sobre cada problema ---
@@ -127,7 +164,8 @@ print("Problemas seleccionados:")
 for fname, problem in problems:
     print(f"\nArchivo: {fname} ({problem.dimension} ciudades)")
     coords = [problem.node_coords[i] for i in problem.node_coords]
-    cities = np.array(coords)
-    best_path, best_length = solve_aco(cities)
-    print(f"→ Longitud ACO: {best_length:.2f}")
+    cities = list(coords)
+    edge_type = problem.edge_weight_type if problem.edge_weight_type else "EUC_2D"
+    best_path, best_length = solve_aco(cities, edge_type)
+    print(f"→ Tipo: {edge_type} | Longitud ACO: {best_length:.2f}")
     plot_path(cities, best_path, title=f"{fname} - ACO")
