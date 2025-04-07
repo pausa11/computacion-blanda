@@ -1,157 +1,171 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import tsplib95
+import os
+import random
+import math
 
-# Parámetros del algoritmo
-n = 100  # Número de ciudades
-n_ants = 10  # Número de hormigas
-maxIter = 100  # Número máximo de iteraciones
-alpha = 1  # Importancia de las feromonas
-beta = 2  # Importancia de la visibilidad (inversa de distancia)
-ro = 0.5  # Tasa de evaporación
-Q = 1  # Constante para actualización de feromonas
+# --- Configuración ---
+TSP_FOLDER = './tsplib-master/'
+RO = 0.5
+MAX_ITER = 2000
+N_ANTS = 10
+ALPHA = 0.5
+BETA = 5
 
-# Generar ciudades aleatorias (usando solo 2 dimensiones para visualización)
-np.random.seed(0)
-cities = np.random.uniform(0, 10, [n, 2])
+# --- Funciones auxiliares ---
+def is_graphable(problem):
+    return problem.node_coords is not None
 
-# Calcular matriz de distancias
-def distances(cities):
+def get_random_problems(file_list, count):
+    selected = []
+    available = file_list.copy()
+    while len(selected) < count and available:
+        filename = 'pr76.tsp'
+        filepath = os.path.join(TSP_FOLDER, filename)
+        problem = tsplib95.load(filepath)
+        if is_graphable(problem):
+            selected.append((filename, problem))
+        available.remove(filename)
+    return selected
+
+def deg_to_rad(coord):
+    deg = int(coord)
+    min = coord - deg
+    return math.pi * (deg + 5.0 * min / 3.0) / 180.0
+
+def geo_distance(coord1, coord2):
+    RRR = 6378.388  # radio terrestre en km (TSPLIB)
+    lat1, lon1 = coord1
+    lat2, lon2 = coord2
+
+    lat1 = deg_to_rad(lat1)
+    lon1 = deg_to_rad(lon1)
+    lat2 = deg_to_rad(lat2)
+    lon2 = deg_to_rad(lon2)
+
+    q1 = math.cos(lon1 - lon2)
+    q2 = math.cos(lat1 - lat2)
+    q3 = math.cos(lat1 + lat2)
+
+    return int(RRR * math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1)
+
+def compute_distance_matrix(cities, edge_type="EUC_2D"):
     n = len(cities)
     d = np.zeros([n, n])
     for i in range(n):
         for j in range(n):
-            d[i, j] = np.linalg.norm(cities[i] - cities[j])
-    # Evitar división por cero en la diagonal
-    np.fill_diagonal(d, np.inf)
+            if i == j:
+                d[i, j] = np.inf
+            else:
+                if edge_type == "GEO":
+                    d[i, j] = geo_distance(cities[i], cities[j])
+                else:
+                    d[i, j] = np.linalg.norm(np.array(cities[i]) - np.array(cities[j]))
     return d
 
-d = distances(cities)
-
-# Calcular matriz de visibilidad (inversa de la distancia)
-visibility = 1.0 / d
-
-# Inicializar matriz de feromonas
-pheromones = np.ones([n, n])
-
-# Función para visualizar el recorrido
-def plot_path(cities, path):
-    plt.figure(figsize=(10, 8))
-    # Dibujar el camino entre ciudades
-    for i in range(len(path)-1):
-        start = cities[path[i]]
-        end = cities[path[i+1]]
-        plt.plot([start[0], end[0]], [start[1], end[1]], 'b-')
-    # Conectar la última ciudad con la primera para completar el ciclo
-    plt.plot([cities[path[-1]][0], cities[path[0]][0]], 
-             [cities[path[-1]][1], cities[path[0]][1]], 'b-')
-    # Graficar las ciudades
-    plt.scatter(cities[:,0], cities[:,1], c='r', s=50)
-    # Etiquetar las ciudades
-    for i, city in enumerate(cities):
-        plt.text(city[0]+0.1, city[1]+0.1, str(i), fontsize=8)
-    plt.grid(True)
-    plt.title(f'Mejor recorrido encontrado (longitud: {best_path_length:.2f})')
-    plt.xlabel('X')
-    plt.ylabel('Y')
+def plot_path(cities, path, title=""):
+    cities = np.array(cities)
+    for i in range(len(path) - 1):
+        inicio = cities[path[i]]
+        fin = cities[path[i + 1]]
+        plt.plot([inicio[0], fin[0]], [inicio[1], fin[1]], 'b')
+    plt.plot([cities[path[-1]][0], cities[path[0]][0]],
+             [cities[path[-1]][1], cities[path[0]][1]], 'b')
+    plt.scatter(cities[:, 0], cities[:, 1], c='r')
+    plt.title(title)
+    plt.grid()
     plt.show()
 
-# Función para calcular la longitud de un recorrido
-def calculate_path_length(path, distance_matrix):
-    total_length = 0
-    for i in range(len(path)-1):
-        total_length += distance_matrix[path[i], path[i+1]]
-    # Añadir la distancia de regreso al punto de inicio
-    total_length += distance_matrix[path[-1], path[0]]
-    return total_length
+def solve_aco(cities, edge_type):
+    n = len(cities)
+    d = compute_distance_matrix(cities, edge_type)
+    nij = 1 / d
+    To = np.ones([n, n])
+    delta = 1.0 
+    best_path = []
+    best_path_length = np.inf
 
-# Variables para almacenar el mejor recorrido
-best_path = None
-best_path_length = np.inf
-best_iteration = 0
+    for _ in range(MAX_ITER):
+        paths = []
+        paths_length = []
 
-# Historial para graficar la convergencia
-iteration_history = []
-best_length_history = []
+        for _ in range(N_ANTS):
+            S = np.zeros(n, dtype=bool)
+            current_city = np.random.randint(n)
+            S[current_city] = True
+            path = [current_city]
+            path_length = 0
 
-# Algoritmo ACO
-for iter in range(maxIter):
-    all_paths = []
-    all_path_lengths = []
-    
-    # Cada hormiga construye un recorrido
-    for ant in range(n_ants):
-        # Seleccionar ciudad inicial aleatoria
-        current_city = np.random.randint(n)
-        path = [current_city]
-        visited = np.zeros(n, dtype=bool)
-        visited[current_city] = True
-        
-        # Construir el recorrido
-        while False in visited:
-            unvisited = np.where(visited == False)[0]
-            
-            # Calcular probabilidades de transición
-            probabilities = np.zeros(len(unvisited))
-            for i, city in enumerate(unvisited):
-                probabilities[i] = (pheromones[current_city, city]**alpha) * \
-                                   (visibility[current_city, city]**beta)
-            
-            # Normalizar probabilidades
-            if np.sum(probabilities) > 0:
-                probabilities = probabilities / np.sum(probabilities)
-            else:
-                # Si todas las probabilidades son cero, elegir uniformemente
-                probabilities = np.ones(len(unvisited)) / len(unvisited)
-            
-            # Seleccionar la siguiente ciudad según las probabilidades
-            next_city = np.random.choice(unvisited, p=probabilities)
-            path.append(next_city)
-            visited[next_city] = True
-            current_city = next_city
-        
-        # Calcular longitud del recorrido
-        path_length = calculate_path_length(path, d)
-        all_paths.append(path)
-        all_path_lengths.append(path_length)
-        
-        # Actualizar mejor recorrido global
-        if path_length < best_path_length:
-            best_path = path.copy()
-            best_path_length = path_length
-            best_iteration = iter
-    
-    # Evaporación de feromonas
-    pheromones = (1-ro) * pheromones
-    
-    # Depositar nuevas feromonas
-    for path, path_length in zip(all_paths, all_path_lengths):
-        for i in range(len(path)-1):
-            pheromones[path[i], path[i+1]] += Q / path_length
-            pheromones[path[i+1], path[i]] += Q / path_length  # Simetría
-        # Cerrar el ciclo (última ciudad a primera)
-        pheromones[path[-1], path[0]] += Q / path_length
-        pheromones[path[0], path[-1]] += Q / path_length  # Simetría
-    
-    # Guardar historial para graficar convergencia
-    iteration_history.append(iter)
-    best_length_history.append(best_path_length)
-    
-    # Mostrar progreso cada 10 iteraciones
-    if (iter+1) % 10 == 0:
-        print(f"Iteración {iter+1}/{maxIter}, Mejor longitud: {best_path_length:.2f}")
+            while not np.all(S):
+                unvisited = np.where(~S)[0]
+                pij = (To[current_city, unvisited] ** ALPHA) * (nij[current_city, unvisited] ** BETA)
+                suma_pij = np.sum(pij)
 
-# Mostrar resultados finales
-print(f"\nMejor recorrido encontrado en la iteración {best_iteration+1}")
-print(f"Longitud del mejor recorrido: {best_path_length:.2f}")
+                # ⚠️ Evitar división por 0 o NaN
+                if suma_pij == 0 or np.isnan(suma_pij):
+                    pij = np.ones(len(unvisited)) / len(unvisited)
+                else:
+                    pij /= suma_pij
 
-# Graficar la convergencia
-plt.figure(figsize=(10, 6))
-plt.plot(iteration_history, best_length_history)
-plt.grid(True)
-plt.title('Convergencia del algoritmo ACO')
-plt.xlabel('Iteración')
-plt.ylabel('Longitud del mejor recorrido')
-plt.show()
+                next_city = np.random.choice(unvisited, p=pij)
+                path.append(next_city)
+                path_length += d[current_city, next_city]
+                current_city = next_city
+                S[current_city] = True
 
-# Visualizar el mejor recorrido
-plot_path(cities, best_path)
+            path_length += d[current_city, path[0]]
+            paths.append(path)
+            paths_length.append(path_length)
+
+            if path_length < best_path_length:
+                best_path = path.copy()
+                best_path_length = path_length
+
+        # Evaporación + protección contra 0s
+        To = np.maximum(To * (1 - RO), 1e-10)
+        for path, length in zip(paths, paths_length):
+            for i in range(n - 1):
+                To[path[i], path[i + 1]] += delta / length
+            To[path[-1], path[0]] += delta / length
+
+    return best_path, best_path_length
+
+# --- Clasificación de instancias ---
+small_problems = []
+medium_problems = []
+large_problems = []
+
+for filename in os.listdir(TSP_FOLDER):
+    if filename.endswith('.tsp'):
+        filepath = os.path.join(TSP_FOLDER, filename)
+        try:
+            problem = tsplib95.load(filepath)
+            if not is_graphable(problem):
+                continue
+            dimension = problem.dimension
+            if 10 <= dimension <= 20:
+                small_problems.append(filename)
+            elif 50 <= dimension <= 100:
+                medium_problems.append(filename)
+            elif dimension > 101:
+                large_problems.append(filename)
+        except:
+            print(f"Error cargando {filename}, se omite.")
+
+# --- Selección aleatoria de problemas ---
+problems = []
+problems += get_random_problems(small_problems, 0)
+problems += get_random_problems(medium_problems, 1)
+problems += get_random_problems(large_problems, 0)
+
+# --- Ejecutar ACO sobre cada problema ---
+print("Problemas seleccionados:")
+for fname, problem in problems:
+    print(f"\nArchivo: {fname} ({problem.dimension} ciudades)")
+    coords = [problem.node_coords[i] for i in problem.node_coords]
+    cities = list(coords)
+    edge_type = problem.edge_weight_type if problem.edge_weight_type else "EUC_2D"
+    best_path, best_length = solve_aco(cities, edge_type)
+    print(f"→ Tipo: {edge_type} | Longitud ACO: {best_length:.2f}")
+    plot_path(cities, best_path, title=f"{fname} - ACO")

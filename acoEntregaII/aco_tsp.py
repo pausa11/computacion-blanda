@@ -6,17 +6,10 @@ import math
 import csv
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from itertools import product
+import time
 
 TSP_FOLDER = './tsplib-master/'
-
-known_solutions = {
-    "a280.tsp": 2579,
-    "att48.tsp": 10628,
-    "bayg29.tsp": 1610,
-    "burma14.tsp": 3323,
-    "berlin52.tsp": 7542,
-    "pr76.tsp": 108159,
-}
+known_solutions = { "burma14.tsp": 3323, "ulysses16.tsp": 6859, "ulysses22.tsp": 7013, "pr76.tsp": 108159, "berlin52.tsp": 7542, "att48.tsp": 10628, "a280.tsp": 2579, "kroD100.tsp": 21294, "bier127.tsp": 118282, }
 
 DEFAULT_MAX_ITER = 1000
 DEFAULT_RO = 0.3
@@ -48,8 +41,7 @@ def geo_distance(coord1, coord2):
     q2 = math.cos(lat1 - lat2)
     q3 = math.cos(lat1 + lat2)
 
-    return int(RRR * math.acos(0.5 * ((1.0 + q1) * q2
-                                      - (1.0 - q1) * q3)) + 1)
+    return int(RRR * math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1)
 
 def compute_distance_matrix(cities, edge_type="EUC_2D"):
     """Genera la matriz de distancias para el conjunto de ciudades."""
@@ -68,10 +60,6 @@ def compute_distance_matrix(cities, edge_type="EUC_2D"):
     return d
 
 def solve_aco(cities, edge_type="EUC_2D", max_iter=DEFAULT_MAX_ITER, ro=DEFAULT_RO, alpha=DEFAULT_ALPHA, beta=DEFAULT_BETA, n_ants=DEFAULT_N_ANTS):
-    """
-    Ejecuta el ACO con los parámetros dados sobre un conjunto de cities.
-    Retorna (best_path, best_path_length).
-    """
     n = len(cities)
     d = compute_distance_matrix(cities, edge_type)
     nij = 1 / d  # Atractividad
@@ -128,7 +116,6 @@ def solve_aco(cities, edge_type="EUC_2D", max_iter=DEFAULT_MAX_ITER, ro=DEFAULT_
     return best_path, best_path_length
 
 def plot_path(cities, path, title=""):
-    """Grafica la ruta resultante en 2D."""
     cities = np.array(cities)
     for i in range(len(path) - 1):
         inicio = cities[path[i]]
@@ -144,7 +131,7 @@ def plot_path(cities, path, title=""):
 
 # 1) Listas de valores a experimentar (ajusta a tu gusto)
 ANTS_VALUES = [10, 20, 30]         # n_ants
-ALPHA_VALUES = [0.5,1.5]     # α
+ALPHA_VALUES = [0.5,1.0,1.5]     # α
 BETA_VALUES = [1.0, 3.0, 5.0]      # β
 RHO_VALUES = [0.1, 0.3, 0.5]       # evaporación
 MAX_ITER_VALUES = [1000]      # iteraciones
@@ -155,16 +142,7 @@ def experiment_task(params, cities, edge_type, known):
     gap = None
     if known:
         gap = (length - known) / known * 100
-    return {
-        'ants': ants,
-        'alpha': alpha,
-        'beta': beta,
-        'rho': rho,
-        'max_iter': iters,
-        'found_length': length,
-        'gap_%': gap,
-        'path': path
-    }
+    return { 'ants': ants, 'alpha': alpha, 'beta': beta, 'rho': rho, 'max_iter': iters, 'found_length': length, 'gap_%': gap, 'path': path }
 
 def run_experiment_parallel(fname):
     filepath = os.path.join(TSP_FOLDER, fname)
@@ -178,6 +156,7 @@ def run_experiment_parallel(fname):
     best_known = known_solutions.get(fname)
 
     print(f"\n🧪 Ejecutando experimento paralelo con {fname} ({n} ciudades)")
+    start_time = time.time()
 
     all_combinations = list(product(ANTS_VALUES, ALPHA_VALUES, BETA_VALUES, RHO_VALUES, MAX_ITER_VALUES))
 
@@ -201,10 +180,13 @@ def run_experiment_parallel(fname):
                 print(f"🔄 Progreso: {int(porcentaje)}% ({completadas}/{total}) combinaciones completadas")
                 siguiente_avance += 10
 
-
     results.sort(key=lambda x: x['found_length'])
 
-    # Guardar CSV
+    # Mejor solución
+    best_result = results[0]
+    best_path = best_result['path']
+
+    # Guardar CSV principal
     csv_filename = f"resultados_{fname.replace('.tsp', '')}.csv"
     with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
         fieldnames = ['ants', 'alpha', 'beta', 'rho', 'max_iter', 'found_length', 'gap_%']
@@ -212,10 +194,31 @@ def run_experiment_parallel(fname):
         writer.writeheader()
         for row in results:
             writer.writerow({key: row[key] for key in fieldnames})
-    print(f"\n📁 Resultados guardados en: {csv_filename}")
 
-    # Graficar mejor
-    plot_path(cities, results[0]['path'], f"Mejor resultado - {fname}")
+    # Guardar mejor path (solo índices)
+    path_filename = f"mejor_path_{fname.replace('.tsp', '')}.txt"
+    with open(path_filename, "w", encoding="utf-8") as f:
+        f.write(" -> ".join(str(i) for i in best_path))
+
+    # Guardar coordenadas del mejor recorrido
+    coords_filename = f"mejor_coords_{fname.replace('.tsp', '')}.csv"
+    with open(coords_filename, "w", newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(["x", "y"])  # encabezado
+        for i in best_path:
+            writer.writerow(cities[i])
+        # Añadir la vuelta al origen (cierre del ciclo)
+        writer.writerow(cities[best_path[0]])
+
+    print(f"\n📁 Resultados guardados en: {csv_filename}")
+    print(f"📁 Mejor recorrido guardado en: {path_filename}")
+    print(f"📁 Coordenadas del mejor recorrido guardadas en: {coords_filename}")
+
+    end_time = time.time()
+    elapsed = end_time - start_time
+    minutes = int(elapsed // 60)
+    seconds = int(elapsed % 60)
+    print(f"\n⏱️ Tiempo total del experimento: {minutes} min {seconds} s")
 
 if __name__ == "__main__":
     from multiprocessing import freeze_support
