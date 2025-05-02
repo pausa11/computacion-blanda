@@ -7,15 +7,16 @@ import csv
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from itertools import product
 import time
+from multiprocessing import freeze_support
 
-TSP_FOLDER = './tsplib-master/'
+TSP_FOLDER = './tsplib-master'
 known_solutions = { "burma14.tsp": 3323, "ulysses16.tsp": 6859, "ulysses22.tsp": 7013, "pr76.tsp": 108159, "berlin52.tsp": 7542, "att48.tsp": 10628, "a280.tsp": 2579, "kroD100.tsp": 21294, "bier127.tsp": 118282, }
 
 DEFAULT_MAX_ITER = 1000
 DEFAULT_RO = 0.3
 DEFAULT_ALPHA = 1.5
 DEFAULT_BETA = 5
-DEFAULT_N_ANTS = 40
+DEFAULT_N_ANTS = 10
 
 def is_graphable(problem):
     """Verifica si hay coordenadas para graficar/usar en matriz de distancias."""
@@ -43,10 +44,30 @@ def geo_distance(coord1, coord2):
 
     return int(RRR * math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1)
 
-def compute_distance_matrix(cities, edge_type="EUC_2D"):
+# Primera función (original)
+# def distance(cities, edge_type="EUC_2D"):
+#     """Genera la matriz de distancias para el conjunto de ciudades."""
+#     n = len(cities)
+#     d = np.zeros([n, n])
+#     for i in range(n):
+#         for j in range(n):
+#             if i == j:
+#                 d[i, j] = np.inf
+#             else:
+#                 if edge_type == "GEO":
+#                     d[i, j] = geo_distance(cities[i], cities[j])
+#                 else:
+#                     # Distancia euclidiana
+#                     d[i, j] = np.linalg.norm(np.array(cities[i]) - np.array(cities[j]))
+#     return d
+
+
+
+def distance(cities, edge_type="EUC_2D"):
     """Genera la matriz de distancias para el conjunto de ciudades."""
     n = len(cities)
     d = np.zeros([n, n])
+    epsilon = 1e-10  # Pequeño valor para evitar división por cero
     for i in range(n):
         for j in range(n):
             if i == j:
@@ -57,18 +78,23 @@ def compute_distance_matrix(cities, edge_type="EUC_2D"):
                 else:
                     # Distancia euclidiana
                     d[i, j] = np.linalg.norm(np.array(cities[i]) - np.array(cities[j]))
+                # Si la distancia resulta cero, reemplazarla por epsilon
+                d[i, j] = d[i, j] if d[i, j] != 0 else epsilon
     return d
+
 
 def solve_aco(cities, edge_type="EUC_2D", max_iter=DEFAULT_MAX_ITER, ro=DEFAULT_RO, alpha=DEFAULT_ALPHA, beta=DEFAULT_BETA, n_ants=DEFAULT_N_ANTS):
     n = len(cities)
-    d = compute_distance_matrix(cities, edge_type)
+    d = distance(cities, edge_type)
+    print(f"Distancias entre ciudades:\n{d}")
     nij = 1 / d  # Atractividad
     To = np.ones([n, n])  # Feromonas
     delta = 1.0  # refuerzo base
     best_path = []
     best_path_length = np.inf
+    best_iter = None  # Para guardar en qué iteración se encontró la mejor solución
 
-    for _ in range(max_iter):
+    for iteracion in range(max_iter):
         paths = []
         paths_length = []
 
@@ -84,7 +110,6 @@ def solve_aco(cities, edge_type="EUC_2D", max_iter=DEFAULT_MAX_ITER, ro=DEFAULT_
                 pij = (To[current_city, unvisited] ** alpha) * (nij[current_city, unvisited] ** beta)
                 suma_pij = np.sum(pij)
 
-                # Evitar división por cero o NaN
                 if suma_pij == 0 or np.isnan(suma_pij):
                     pij = np.ones(len(unvisited)) / len(unvisited)
                 else:
@@ -96,24 +121,27 @@ def solve_aco(cities, edge_type="EUC_2D", max_iter=DEFAULT_MAX_ITER, ro=DEFAULT_
                 current_city = next_city
                 S[current_city] = True
 
+            # Cierre del ciclo (vuelta a la ciudad de origen)
             path_length += d[current_city, path[0]]
             paths.append(path)
             paths_length.append(path_length)
 
-            # Actualizar mejor camino
+            # Si se encuentra una mejor solución, se actualiza el progreso
             if path_length < best_path_length:
                 best_path = path.copy()
                 best_path_length = path_length
+                best_iter = iteracion + 1  
 
-        # Evaporación y protección
+        # Evaporación de feromonas
         To = np.maximum(To * (1 - ro), 1e-10)
         for path, length in zip(paths, paths_length):
             for i in range(n - 1):
                 To[path[i], path[i + 1]] += delta / length
-            # Cierre
+            # Cierre del ciclo
             To[path[-1], path[0]] += delta / length
 
-    return best_path, best_path_length
+    return best_path, best_path_length, best_iter
+
 
 def plot_path(cities, path, title=""):
     cities = np.array(cities)
@@ -121,28 +149,32 @@ def plot_path(cities, path, title=""):
         inicio = cities[path[i]]
         fin = cities[path[i + 1]]
         plt.plot([inicio[0], fin[0]], [inicio[1], fin[1]], 'b')
-    # Cerrar ciclo
+    
     plt.plot([cities[path[-1]][0], cities[path[0]][0]],
              [cities[path[-1]][1], cities[path[0]][1]], 'b')
     plt.scatter(cities[:, 0], cities[:, 1], c='r')
     plt.title(title)
-    plt.grid()
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.grid(True)
     plt.show()
 
 # 1) Listas de valores a experimentar (ajusta a tu gusto)
 ANTS_VALUES = [10, 20, 30]         # n_ants
-ALPHA_VALUES = [0.5,1.0,1.5]     # α
+ALPHA_VALUES = [0.5,1.0,1.5]     # α 
 BETA_VALUES = [1.0, 3.0, 5.0]      # β
 RHO_VALUES = [0.1, 0.3, 0.5]       # evaporación
 MAX_ITER_VALUES = [1000]      # iteraciones
 
 def experiment_task(params, cities, edge_type, known):
     ants, alpha, beta, rho, iters = params
-    path, length = solve_aco( cities, edge_type=edge_type, max_iter=iters, ro=rho, alpha=alpha, beta=beta, n_ants=ants )
+    path, length, convergence_iter = solve_aco(cities, edge_type=edge_type, max_iter=iters, ro=rho, alpha=alpha, beta=beta, n_ants=ants)
     gap = None
     if known:
         gap = (length - known) / known * 100
-    return { 'ants': ants, 'alpha': alpha, 'beta': beta, 'rho': rho, 'max_iter': iters, 'found_length': length, 'gap_%': gap, 'path': path }
+
+    return { 'ants': ants, 'alpha': alpha, 'beta': beta, 'rho': rho, 'max_iter': iters, 'found_length': length, 'gap_%': gap, 'path': path, 'convergence_iter': convergence_iter }
+
 
 def run_experiment_parallel(fname):
     filepath = os.path.join(TSP_FOLDER, fname)
@@ -159,7 +191,6 @@ def run_experiment_parallel(fname):
     start_time = time.time()
 
     all_combinations = list(product(ANTS_VALUES, ALPHA_VALUES, BETA_VALUES, RHO_VALUES, MAX_ITER_VALUES))
-
     results = []
     total = len(all_combinations)
     completadas = 0
@@ -186,10 +217,16 @@ def run_experiment_parallel(fname):
     best_result = results[0]
     best_path = best_result['path']
 
+    # Imprimir la iteración en la que se logró la convergencia
+    print(f"\nIteración de convergencia: {best_result['convergence_iter']}")
+    # Grafica la ruta óptima
+    plot_path(cities, best_path, title=f"Ruta Óptima encontrada (Longitud: {best_result['found_length']:.2f})")
+
+
     # Guardar CSV principal
     csv_filename = f"resultados_{fname.replace('.tsp', '')}.csv"
     with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
-        fieldnames = ['ants', 'alpha', 'beta', 'rho', 'max_iter', 'found_length', 'gap_%']
+        fieldnames = ['ants', 'alpha', 'beta', 'rho', 'max_iter', 'found_length', 'gap_%', 'convergence_iter']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         for row in results:
@@ -221,8 +258,6 @@ def run_experiment_parallel(fname):
     print(f"\n⏱️ Tiempo total del experimento: {minutes} min {seconds} s")
 
 if __name__ == "__main__":
-    from multiprocessing import freeze_support
+
     freeze_support()
-    run_experiment_parallel('burma14.tsp')
-
-
+    run_experiment_parallel('kroD100.tsp')

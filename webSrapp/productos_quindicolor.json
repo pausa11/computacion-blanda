@@ -1,0 +1,437 @@
+[
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Cinta Transparente Tesa.",
+        "imagen": "https://quindicolor.com/images/productos1/1.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Cinta de Enmascarar Norton.",
+        "imagen": "https://quindicolor.com/images/productos1/2.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Bondex K.",
+        "imagen": "https://quindicolor.com/images/productos1/3.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Carpincol MR-60.",
+        "imagen": "https://quindicolor.com/images/productos1/4.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Para Madera Cemento PL 285.",
+        "imagen": "https://quindicolor.com/images/productos1/5.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Para Madera Imperial.",
+        "imagen": "https://quindicolor.com/images/productos1/6.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pega Madera Plus 100.",
+        "imagen": "https://quindicolor.com/images/productos1/7.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Arteplak 800.",
+        "imagen": "https://quindicolor.com/images/productos1/8.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Arteplak 990.",
+        "imagen": "https://quindicolor.com/images/productos1/9.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Madera Adhetex Blanco Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos1/10.png"
+    },
+    {
+        "categoria": "Adhesivos",
+        "nombre": "Pegante Madera Adhetex Rosado Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos1/11.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Anticorrosivo Sinteico Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos2/1.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Anticorrosivo Semisintetico Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos2/2.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Esmalte Sintetico Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos2/3.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Esmalte Industrial Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos2/4.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Pintura Trafico Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos2/5.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Sika Techo.",
+        "imagen": "https://quindicolor.com/images/productos2/6.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Estuco Acrilico Sika.",
+        "imagen": "https://quindicolor.com/images/productos2/7.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Supermastick.",
+        "imagen": "https://quindicolor.com/images/productos2/8.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Recubrimiento Industial / Catalizador.",
+        "imagen": "https://quindicolor.com/images/productos2/9.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Vinilo Tipo 1 Pintuland.",
+        "imagen": "https://quindicolor.com/images/productos2/10.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Vinilo Tipo 2 Pintuland.",
+        "imagen": "https://quindicolor.com/images/productos2/11.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Esmalte Sintetico Linea Dorada Pintuland.",
+        "imagen": "https://quindicolor.com/images/productos2/12.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Esmalte Sintetico Linea Clasica Pintuland.",
+        "imagen": "https://quindicolor.com/images/productos2/13.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Barniz Sintetico Pintuland.",
+        "imagen": "https://quindicolor.com/images/productos2/14.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Bio Esmalte.",
+        "imagen": "https://quindicolor.com/images/productos2/15.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Bio Anticorrosivo.",
+        "imagen": "https://quindicolor.com/images/productos2/16.png"
+    },
+    {
+        "categoria": "Arquitectura",
+        "nombre": "Graniplas",
+        "imagen": "https://quindicolor.com/images/productos2/17.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Base Nitro.",
+        "imagen": "https://quindicolor.com/images/productos3/1.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "poliuretano.",
+        "imagen": "https://quindicolor.com/images/productos3/2.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Laca Nitro.",
+        "imagen": "https://quindicolor.com/images/productos3/3.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Masilla Para Lamina Macar.",
+        "imagen": "https://quindicolor.com/images/productos3/4.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Masilla Continental Macar.",
+        "imagen": "https://quindicolor.com/images/productos3/5.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Laca Nitro Tonner.",
+        "imagen": "https://quindicolor.com/images/productos3/6.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Barniz Poliuretano Caralz",
+        "imagen": "https://quindicolor.com/images/productos3/7.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Endurecedor POP Caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/8.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Cera Protectora Caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/9.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Liquido Pulidor Caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/10.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Balanceador Caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/11.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Barniz Poliuretano Caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/12.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Barniz pliuretano MS-100 caralz.",
+        "imagen": "https://quindicolor.com/images/productos3/13.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Catalizador Masilla Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/14.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Primer PU Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/15.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Barniz poliuretano Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/16.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Poliuretano Blanco Entonador Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/17.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Ajustador 450 PU Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/18.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Catalizador PU DC0010 Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/19.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Catalizadores Gricoat.",
+        "imagen": "https://quindicolor.com/images/productos3/20.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Poliuretano Ixell",
+        "imagen": "https://quindicolor.com/images/productos3/21.png"
+    },
+    {
+        "categoria": "Automotriz",
+        "nombre": "Catalizador Ixell",
+        "imagen": "https://quindicolor.com/images/productos3/22.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Disco De Corte Carborundum.",
+        "imagen": "https://quindicolor.com/images/productos4/1.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Disco Esmeril Carborundum.",
+        "imagen": "https://quindicolor.com/images/productos4/2.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Disco De Desbaste Norton.",
+        "imagen": "https://quindicolor.com/images/productos4/3.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Lija Seca Carborundum.",
+        "imagen": "https://quindicolor.com/images/productos4/4.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Lija De Agua Norton.",
+        "imagen": "https://quindicolor.com/images/productos4/5.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Lija De Banda Carborundum.",
+        "imagen": "https://quindicolor.com/images/productos4/6.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Lija de Banda Norton",
+        "imagen": "https://quindicolor.com/images/productos4/7.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Lija Orbital.",
+        "imagen": "https://quindicolor.com/images/productos4/8.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Espatula plastica.",
+        "imagen": "https://quindicolor.com/images/productos4/9.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Espatula Goya.",
+        "imagen": "https://quindicolor.com/images/productos4/10.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Brocha Goya.",
+        "imagen": "https://quindicolor.com/images/productos4/11.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Brocha Goya.",
+        "imagen": "https://quindicolor.com/images/productos4/12.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Pistola Thomas 527.",
+        "imagen": "https://quindicolor.com/images/productos4/13.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Pistola Thomas W-71G",
+        "imagen": "https://quindicolor.com/images/productos4/14.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Pistola Thomas F-75G",
+        "imagen": "https://quindicolor.com/images/productos4/15.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Rodillo Goya",
+        "imagen": "https://quindicolor.com/images/productos4/16.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Rodillo Antigota Goya",
+        "imagen": "https://quindicolor.com/images/productos4/17.png"
+    },
+    {
+        "categoria": "Ferreteria",
+        "nombre": "Pinceles.",
+        "imagen": "https://quindicolor.com/images/productos4/18.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Barniz Poliuretano Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/1.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Base Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/2.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Sellador Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/3.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Sellador Nitro Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/4.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Base Nitro Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/5.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Laca Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/6.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Removedor De Pintura Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/7.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Catalizador Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/8.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Tinte Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/9.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Bio Barniz Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/10.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Aqua Laca Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/11.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Aqua Sellado Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/12.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Eco Masilla.",
+        "imagen": "https://quindicolor.com/images/productos5/13.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Plasti Flex.",
+        "imagen": "https://quindicolor.com/images/productos5/14.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Color Plus Profilan.",
+        "imagen": "https://quindicolor.com/images/productos5/15.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Tinte Every",
+        "imagen": "https://quindicolor.com/images/productos5/16.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Barniz Madetec Pintuco.",
+        "imagen": "https://quindicolor.com/images/productos5/17.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Alcohol Universal Quindicolor.",
+        "imagen": "https://quindicolor.com/images/productos5/18.png"
+    },
+    {
+        "categoria": "Madera",
+        "nombre": "Varsol Quindicolor",
+        "imagen": "https://quindicolor.com/images/productos5/19.png"
+    }
+]

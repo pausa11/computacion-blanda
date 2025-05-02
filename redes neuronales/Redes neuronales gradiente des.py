@@ -60,3 +60,20 @@ print(xnormalitation)
 print(targetsNormalitation)
 print(xtestNormalitation)
 print(ytestNormalitation)
+
+
+#regresion logistica
+#clasificacion lineal
+def f(x):
+    return x.dot(w) + b
+
+def activete(z):
+    return 1/(1+np.exp(-z))
+
+w=0.1
+b=0.1
+
+
+X = np.array([(0.0000, 0.0000), (0.1600, 0.1556), (0.2400, 0.3543), (0.2800, 0.3709)])
+pred= f(x)
+print(pred)
