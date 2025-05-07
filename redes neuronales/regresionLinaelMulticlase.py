@@ -14,8 +14,8 @@ def activate(z):
 def log_loss(y,p):
   return -y*np.log(p)-(1-y)*np.log(1-p)
 
-inputs = np.array([(0.0000, 0.0000), (0.2778, 0.2500), (0.2778, 0.9375),
-(0.9167, 0.6563),
+#datos de entrenamiento
+inputs = np.array([(0.0000, 0.0000), (0.2778, 0.2500), (0.2778, 0.9375), (0.9167, 0.6563),
 (0.4167, 0.2500), (0.3611, 0.3438), (0.3333, 0.4063), (0.9722, 0.3750),
 (0.0833, 0.3438), (0.6389, 0.3438), (0.4167, 0.6875), (0.7500, 0.6875),
 (0.0833, 0.1875), (0.9167, 0.5313), (0.1389, 0.2500), (0.8333, 0.6250),
@@ -25,10 +25,11 @@ inputs = np.array([(0.0000, 0.0000), (0.2778, 0.2500), (0.2778, 0.9375),
 (0.0833, 0.0313), (0.3333, 0.8750)])
 X = inputs.copy()
 
-red=np.array([1,0,0])
-green=np.array([0,1,0])
-blue=np.array([0,0,1])
-targets =np.array([red, red, blue, green, red, red, red, green, red, green,
+red=      np.array([1,0,0])
+green=    np.array([0,1,0])
+blue=     np.array([0,0,1])
+#aprendizaje supervisado
+targets=  np.array([red, red, blue, green, red, red, red, green, red, green,
 blue, green, red,
 green, red, green, green, blue, green, blue, green, blue, blue, blue,
 red, blue, blue, green, red, blue])
@@ -39,7 +40,7 @@ red, blue, blue, green, red, blue])
 
 m = 3 #categorias
 inp = 2 #entradas / l-w
-bs = np.ones(m)
+bs = np.ones([1,m])
 
 ws = np.ones([m,inp])*0.1
 # print(ws)
