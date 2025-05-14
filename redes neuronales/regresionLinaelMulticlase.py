@@ -11,8 +11,13 @@ def softMax(z):
 def activate(z):
   return 1/(1+np.exp(-z))
 
-def log_loss(y,p):
-  return -y*np.log(p)-(1-y)*np.log(1-p)
+#s = np.sum(np.exp(z), axis=1, keepdims=True)
+# return np.exp(z)/s[:,np.newaxis]
+
+def log_loss(y, p):
+    epsilon = 1e-15
+    p = np.clip(p, epsilon, 1 - epsilon)
+    return -y * np.log(p) - (1 - y) * np.log(1 - p)
 
 #datos de entrenamiento
 inputs = np.array([(0.0000, 0.0000), (0.2778, 0.2500), (0.2778, 0.9375), (0.9167, 0.6563),
@@ -54,34 +59,55 @@ ws = np.ones([m,inp])*0.1
 # act = softMax(pred)
 
 
-lr=0.01 #tasa de aprendizaje
+lr=0.5 #tasa de aprendizaje
 
 iterations=10000
 for iter in range(iterations):
-    pred = f(X)
-    act = softMax(pred)   
-    #   print(act)
-    #log_cost
-    cost = log_loss(targets,act)
-    
-    
-    mse=np.mean(cost)
-    print(f'iter:{iter},cost:{mse:.3f}')
+  pred = f(X)
+  act = softMax(pred)   
+  #   print(act)
+  #log_cost
+  cost = log_loss(targets, act)
+  
+  
+  mse=np.mean(cost)
 
 
-    z_d = act - targets #derivada parcial respecto a z
-    # Gradiente con respecto a w
-    # w_d= -2*(X.T).dot(targets-f(X))
-    w_d = (X.T).dot(z_d)
-    avg_w_d = w_d / np.size(targets)
+  z_d = act - targets #derivada parcial respecto a z
+  # Gradiente con respecto a w
+  # w_d= -2*(X.T).dot(targets-f(X))
+  w_d = (X.T).dot(z_d)
+  avg_w_d = w_d / np.size(targets, axis=0)
 
-    # gradiente respecto a b
-    b_d=np.ones([1,np.size(targets)]).dot(z_d)
-    avg_b_d=b_d/np.size(targets)
-    #print(avg_b_d)
-    # Actualización de w y b
-    w-=lr*avg_w_d
-    b-=lr*avg_b_d
+  # gradiente respecto a b
+  b_d=np.ones([1,np.size(targets,axis=0)]).dot(z_d)
 
+  avg_b_d=b_d/np.size(targets)
+  #print(avg_b_d)
+  # Actualización de w y b
+  ws-=lr*avg_w_d.T
+  bs-=lr*avg_b_d
+  print(f'iter:{iter},cost:{mse:.3f}')
+
+
+
+#test
+test_i = np.array([(0.0278, 0.0313), (0.0556, 0.0625), (0.1111, 0.1563),
+(0.3611, 0.3750),
+(0.2778, 0.3438), (0.8333, 0.3750), (0.5556, 0.4375), (0.8333, 0.5313),
+(0.8611, 0.6563), (0.8056, 0.5625), (0.4722, 0.6563), (0.3611, 0.5625),
+(0.4722, 0.8438), (0.3611, 0.9688), (0.4167, 0.9375)])
+
+test_t = np.array([red, red, red, red, red, green, green, green,
+green, green, blue, blue, blue, blue, blue])
+
+plt.scatter(test_i[:,0],test_i[:,0],c = test_t)
+plt.grid()
+plt.show()
+pred = f(test_i)
+act = softMax(pred)
+for a , t in zip(act, test_t):
+  a = np.round(a,3)
+  print(f'target: {t}, act: {a}')
 
 
