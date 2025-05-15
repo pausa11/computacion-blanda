@@ -102,3 +102,10 @@ print(AND((implication(0.8,0.7)),0.8))
 
 print('------------------------mtt---------------------------------')
 print(AND(implication(0.8,0.7),NOT(0.7)))
+
+
+
+#desfusificacion
+#< z = ((0.7*75) + (0.1 * 25)) / (0-7 + 0.1) = 0.68 % de velocidad
+
+
