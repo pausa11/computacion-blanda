@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 # ——— Funciones de activación ———
 def relu(z):
@@ -16,7 +15,7 @@ def softmax(z):
     return exp_z / np.sum(exp_z, axis=1, keepdims=True)
 
 # ——— Pérdida y derivada ———
-def cross_entropy(y_true, y_pred):
+def log_loss(y_true, y_pred):
     eps = 1e-15
     p = np.clip(y_pred, eps, 1-eps)
     return -np.sum(y_true * np.log(p), axis=1)
@@ -72,7 +71,7 @@ n_input    = 2
 n_hidden   = 40        
 n_output   = 3
 lr         = 0.1
-epochs     = 10000
+iterations     = 10000
 
 # ——— Inicialización de pesos y sesgos ———
 rng = np.random.default_rng(42)
@@ -85,7 +84,7 @@ b2 = np.zeros((1, n_output))
 loss_history = []
 N = inputs.shape[0]
 
-for epoch in range(epochs):
+for iter in range(iterations):
     # Forward
     Z1 = inputs.dot(W1.T) + b1     # (N, n_hidden)
     A1 = relu(Z1)                  # (N, n_hidden)
@@ -93,7 +92,7 @@ for epoch in range(epochs):
     A2 = softmax(Z2)               # (N, n_output)
 
     # Pérdida
-    loss = np.mean(cross_entropy(targets, A2))
+    loss = np.mean(log_loss(targets, A2))
     loss_history.append(loss)
 
     # Backprop
@@ -113,8 +112,8 @@ for epoch in range(epochs):
     b1 -= lr * db1
 
     # (Opcional) imprimir cada 1000 epochs
-    if epoch % 1000 == 0:
-        print(f"Epoch {epoch}, loss={loss:.4f}")
+    if iter % 1000 == 0:
+        print(f"Epoch {iter}, loss={loss:.4f}")
 
 # ——— Evaluación en test ———
 Z1_test = test_inputs.dot(W1.T) + b1
@@ -141,30 +140,42 @@ label_map = {
     2: "Green (clase 2)"
 }
 
-# Obtener predicciones como índices
-pred_labels = np.argmax(A2_test, axis=1)
-
-# Crear colores para cada punto según la clase predicha
-colors = [color_map[label] for label in pred_labels]
-
-# Graficar
+# Gráfica de clasificación en test:
 plt.figure(figsize=(7,6))
-plt.scatter(test_inputs[:,0], test_inputs[:,1], c=colors, s=60, edgecolors='k')
+for cls in [0,1,2]:
+    # máscara para verdaderos
+    mask_real = np.argmax(test_targets, axis=1) == cls
+    # máscara para predichos
+    mask_pred = pred_labels == cls
+
+    # puntos reales (huecos, color gris)
+    plt.scatter(test_inputs[mask_real,0],
+                test_inputs[mask_real,1],
+                facecolors='none',
+                edgecolors='gray',
+                s=60,
+                label=f'Real {label_map[cls]}')
+
+    # puntos predichos (color de la clase, marcador lleno)
+    plt.scatter(test_inputs[mask_pred,0],
+                test_inputs[mask_pred,1],
+                c=color_map[cls],
+                s=40,
+                marker='o',
+                label=f'Pred {label_map[cls]}')
+
 plt.title("Clasificación en datos de prueba")
 plt.xlabel("X1")
 plt.ylabel("X2")
 plt.grid(True)
-
-# Agregar leyenda
-legend_elements = [mpatches.Patch(color=clr, label=label_map[idx]) for idx, clr in color_map.items()]
-plt.legend(handles=legend_elements)
+plt.legend()
 plt.show()
 
-
-# ——— Gráfica de la pérdida ———
+# Gráfica de la pérdida:
+plt.figure()
 plt.plot(loss_history)
 plt.title("Loss durante el entrenamiento")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
-plt.grid()
+plt.grid(True)
 plt.show()
