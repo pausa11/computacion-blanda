@@ -105,9 +105,8 @@ for iter in range(iterations):
     W1 -= lr * dW1
     b1 -= lr * db1
 
-    # (Opcional) imprimir cada 1000 epochs
     if iter % 1000 == 0:
-        print(f"Epoch {iter}, loss={loss:.4f}")
+        print(f"iter {iter}, loss={loss:.4f}")
 
 # ——— Evaluación en test ———
 Z1_test = test_inputs.dot(W1.T) + b1
@@ -121,21 +120,30 @@ accuracy = np.mean(pred_labels == true_labels)
 print(f"Precisión en test: {accuracy*100:.2f}%  ")
 
 # Colores usados
-color_map = {
-    0: 'purple',
-    1: 'orange',
-    2: 'green'
-}
+color_map = { 0: 'purple', 1: 'orange', 2: 'green' }
 
 # Etiquetas para leyenda
-label_map = {
-    0: "Purple (clase 0)",
-    1: "Orange (clase 1)",
-    2: "Green (clase 2)"
-}
+label_map = { 0: "Purple (clase 0)", 1: "Orange (clase 1)", 2: "Green (clase 2)" }
 
-# Gráfica de clasificación en test:
+
+# Crear la rejilla para visualizar regiones de decisión
+x_min, x_max = inputs[:, 0].min() - 0.1, inputs[:, 0].max() + 0.1
+y_min, y_max = inputs[:, 1].min() - 0.1, inputs[:, 1].max() + 0.1
+xx, yy = np.meshgrid(np.linspace(x_min, x_max, 300),
+                     np.linspace(y_min, y_max, 300))
+grid_points = np.c_[xx.ravel(), yy.ravel()]
+
+# Forward pass de la red sobre cada punto de la malla
+Z1_grid = grid_points.dot(W1.T) + b1
+A1_grid = relu(Z1_grid)
+Z2_grid = A1_grid.dot(W2.T) + b2
+A2_grid = softmax(Z2_grid)
+grid_pred = np.argmax(A2_grid, axis=1)
+grid_pred = grid_pred.reshape(xx.shape)
+
+# Dibujar regiones
 plt.figure(figsize=(7,6))
+plt.contourf(xx, yy, grid_pred, levels=2, alpha=0.3, colors=["purple", "orange", "green"])
 for cls in [0,1,2]:
     # máscara para verdaderos
     mask_real = np.argmax(test_targets, axis=1) == cls
