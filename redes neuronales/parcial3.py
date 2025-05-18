@@ -193,6 +193,7 @@ plt.xlabel("X1", fontsize=12)
 plt.ylabel("X2", fontsize=12)
 plt.grid(True)
 plt.legend()
+plt.legend()
 plt.show()
 
 # Gráfica de la pérdida:
